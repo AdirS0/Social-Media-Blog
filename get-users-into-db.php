@@ -1,7 +1,7 @@
 <?php
 
-require "classes/User.php";
-require "classes/Database.php";
+//require "classes/Database.php";
+require "database.php";
 
 $ch = curl_init();
 $url = "https://jsonplaceholder.typicode.com/users";
@@ -16,8 +16,12 @@ if ($e = curl_error($ch)) {
     die("Error curling data: $e");
 } else {
     $usersData = json_decode($response, true);
-    
 
+    foreach ($usersData as $index => $userArr) {
+        $userForDb = ['id' => $userArr['id'], 'username' => $userArr['username'], 'email' => $userArr['email']];
+        
+        $db->insert($table, $userForDb);
+    }
 }
 
 curl_close($ch);
