@@ -44,7 +44,7 @@ class Database
     /**
      * To connect to the database.
      * 
-     * @throws exception if connection has failed.
+     * @throws PDOException if connection has failed.
      **/
     private function connect()
     {
@@ -61,9 +61,33 @@ class Database
     }
 
     /**
+     * To insert data into a table.
+     *
+     * @param string $table Table to insert data to.
+     * @param array $data Data (user/post) to insert.
+     **/
+    public function insert($table, $data)
+    {
+        $columns = implode(", ", array_keys($data));
+        $placeholders = ":" . implode(", :", array_values($data));
+        $sql = "INSERT INTO $table ($columns) VALUES ($placeholders)";
+
+        try {
+            $statement = $this->connection->prepare($sql);
+            $statement->execute($data);
+            return $statement;
+        }
+        catch (PDOException $e) {
+            die("Error executing query: {$e->getMessage()}");
+        }
+    }
+
+    
+
+    /**
      * Creates 'users' table.
      * 
-     * @throws exception if creation has failed.
+     * @throws PDOException if creation has failed.
      **/
     private function createUsersTable()
     {
@@ -87,7 +111,7 @@ class Database
     /**
      * Creates 'posts' table.
      *
-     * @throws exception if creation has failed.
+     * @throws PDOException if creation has failed.
      **/
     private function createPostsTable()
     {
