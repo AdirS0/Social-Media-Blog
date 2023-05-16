@@ -31,6 +31,7 @@ class Database
         $this->connect();
         $this->createUsersTable();
         $this->createPostsTable();
+        $this->createDateHourPostsTable();
     }
 
     /**
@@ -61,28 +62,95 @@ class Database
     }
 
     /**
-     * To insert data into a table.
+     * To insert a row into a table.
      *
      * @param string $table Table to insert data to.
-     * @param array $data Data (user/post) to insert.
+     * @param array $data Data to insert.
+     * @return PDOStatement|bool PDOStatement/false if insertion succeeded/failed.
      **/
     public function insert($table, $data)
     {
-        $columns = implode(", ", array_keys($data));
-        $placeholders = ":" . implode(", :", array_values($data));
+        $columns = "" . implode(", ", array_keys($data)) . "";
+        $placeholders = ":" . implode(", :", array_keys($data));
+        
         $sql = "INSERT INTO $table ($columns) VALUES ($placeholders)";
 
+        return $this->executeQuery($sql, $data);
+    }
+
+    /**
+     * To select data from a table.
+     *
+     * @param string $table The table to select the data from.
+     * @param string $columns The columns to select.
+     * @param string $where Condition to select (Which row(s)).
+     * @return array The results in array.
+     **/
+    public function select($table, $columns = '*', $where = '')
+    {
+        $sql = "SELECT $columns FROM $table";
+        if (!empty($where)) {
+            $sql .= " WHERE $where";
+        }
+
+        $statement = $this->executeQuery($sql);
+
+        return $statement->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * To update a row in a table.
+     * 
+     * @param string $table 
+     * @param array $data Data to update.
+     * @param string $where Condition to update (Which row(s)).
+     * @return PDOStatement|bool PDOStatement/false if update succeeded/failed.
+     **/
+    public function update($table, $data, $where)
+    {
+        $setValues = "";
+        foreach ($data as $column => $value) {
+            $setValues .= "$column = :$column, ";
+        }
+        $setValues = rtrim($setValues, ", ");
+        $sql = "UPDATE $table SET $setValues WHERE $where";
+
+        return $this->executeQuery($sql, $data);
+    }
+
+    /**
+     * To delete a row in a table.
+     * 
+     * @param string $table
+     * @param string $where Condition to delete (Which row(s)).
+     * @return PDOStatement|bool PDOStatement/false if deletion succeeded/failed.
+     **/
+    public function delete($table, $where)
+    {
+        $sql = "DELETE FROM $table WHERE $where";
+
+        return $this->executeQuery($sql);
+    }
+
+    /**
+     * To prepare & execute a query in the database with given table and data.
+     * 
+     * @param string $sql SQL code to prepare.
+     * @param array $data Array of parameters (data) to execute query.
+     * @return PDOStatement|bool PDOStatement/false if query execution succeeded/failed.
+     * @throws PDOException if query execution has failed.
+     **/
+    private function executeQuery($sql, $params = [])
+    {
         try {
             $statement = $this->connection->prepare($sql);
-            $statement->execute($data);
+            $statement->execute($params);
             return $statement;
         }
         catch (PDOException $e) {
             die("Error executing query: {$e->getMessage()}");
         }
     }
-
-    
 
     /**
      * Creates 'users' table.
@@ -95,7 +163,7 @@ class Database
             `id` INT NOT NULL , 
             `username` VARCHAR(255) NOT NULL , 
             `email` VARCHAR(255) NOT NULL , 
-            `active` BOOLEAN NULL , 
+            `active` BOOLEAN NOT NULL DEFAULT (RAND() < 0.5) , 
             PRIMARY KEY (`id`)
             );";
 
@@ -120,10 +188,10 @@ class Database
             `user_id` INT NOT NULL , 
             `title` VARCHAR(255) NOT NULL , 
             `body` TEXT NOT NULL , 
-            `published_at` DATETIME NULL , 
-            `active` BOOLEAN NULL , 
+            `published_at` DATETIME NOT NULL DEFAULT (CURRENT_TIMESTAMP + INTERVAL FLOOR(RAND()*24) HOUR) , 
+            `active` BOOLEAN NOT NULL DEFAULT (RAND() < 0.5) , 
             PRIMARY KEY (`id`) , 
-            FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+            FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE
             );";
 
         try {
@@ -135,5 +203,76 @@ class Database
         }
     }
 
-    
+    /**
+     * Function to select all active users and their posts.
+     * 
+     * @return type
+     * @throws PDOException
+     **/
+    public function selectActiveUsersAndPosts()
+    {
+        $sql = "SELECT users.id AS user_id, users.username, users.email, posts.id AS post_id, posts.title, posts.body, posts.published_at
+        FROM users
+        JOIN posts
+        WHERE users.id = posts.user_id
+        AND users.active = 1";
+
+        $statement = $this->executeQuery($sql);
+        return $statement->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Function to return the last post of the user who has a birthday this month.
+     * 
+     * @return PDOStatement|bool false if fails.
+     * @throws PDOException
+     **/
+    public function selectBirthdayMonthUserLastPost()
+    {
+        
+    }
+
+    /**
+     * To create a table of date, hour and posts per hour.
+     *
+     * @throws PDOException
+     **/
+    private function createDateHourPostsTable()
+    {
+        $createQuery = "CREATE TABLE IF NOT EXISTS `proj_db`.`date_hour_posts` (
+            `date` DATE NOT NULL , 
+            `hour` INT NOT NULL , 
+            `post_count` INT NULL , 
+            PRIMARY KEY (`date`, `hour`)
+            )";
+
+        try {
+            if ( ! $this->connection->query($createQuery)){
+                die("Query for creating 'date_hour_posts' table failed");
+            }
+        } catch (PDOException $e) {
+            die("(PDOException) Creating 'date_hour_posts' table failed: {$e->getMessage()}");
+        }
+    }
+
+    /**
+     * To insert new data to date_hour_posts table.
+     *
+     * @throws PDOException
+     **/
+    public function insertDataToDateHourPostsTable()
+    {
+        $sql = "INSERT INTO date_hour_posts (date, hour, post_count)
+            SELECT DATE(published_at) AS date,
+                   HOUR(published_at) AS hour,
+                   COUNT(*) as post_count
+            FROM posts
+            GROUP BY date, hour";
+        
+        try {
+            $this->connection->query($sql);
+        } catch (PDOException $e) {
+            die("(PDOException) Creating 'date_hour_posts' table failed: {$e->getMessage()}");
+        }
+    }
 }
