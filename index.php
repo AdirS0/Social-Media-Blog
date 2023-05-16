@@ -1,14 +1,9 @@
 <?php
 
-require "classes/Database.php";
+//require "classes/Database.php";
+require "database.php";
 
-$host = "localhost";
-$username = "adir";
-$password = "142536";
-$database = "proj_db";
-
-$db = new Database($host, $username, $password, $database);
-
+print "No data!\nGo to /get-users-into-db.php or /get-posts-into-db.php to get data into the DB.";
 
 
 
