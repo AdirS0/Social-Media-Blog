@@ -1,7 +1,7 @@
 <?php
 
-require "classes/Post.php";
-require "classes/Database.php";
+//require "classes/Database.php";
+require "database.php";
 
 $ch = curl_init();
 $url = "https://jsonplaceholder.typicode.com/posts";
@@ -17,7 +17,11 @@ if ($e = curl_error($ch)) {
 } else {
     $postsData = json_decode($response, true);
     
-    
+    foreach ($postsData as $index => $postArr) {
+        $postForDb = ['id' => $postArr['id'], 'user_id' => $postArr['userId'], 'title' => $postArr['title'], 'body' => $postArr['body']];
+        
+        $db->insert($table, $postForDb);
+    }
 }
 
 curl_close($ch);
