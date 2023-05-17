@@ -229,7 +229,17 @@ class Database
      **/
     public function selectBirthdayMonthUserLastPost()
     {
-        
+        $sql = "SELECT posts.*
+        FROM users
+        JOIN posts ON users.id = posts.user_id
+        WHERE MONTH(users.birthday) = MONTH(CURRENT_DATE())
+        ORDER BY posts.published_at DESC LIMIT 1";
+
+        try {
+            $this->connection->query($sql);
+        } catch (PDOException $e) {
+            die("Error executing SELECT query: {$e->getMessage()}");
+        }
     }
 
     /**
