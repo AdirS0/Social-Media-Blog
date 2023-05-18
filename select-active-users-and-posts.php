@@ -2,33 +2,25 @@
 
 require "database.php";
 
-$results = $db->selectActiveUsersAndPosts();
-$username = $results[0]['username'];
-$email = $results[0]['email'];
+$activeUsersAndPosts = $db->selectActiveUsersAndPosts();
 
 echo '<div>';
-echo '<div>';
-echo '<img src="image.jpg" alt="User Image" width=150 height=150>';
-echo '<h1>' . $username . ' , ' . $email . '</h1>';
-foreach ($results as $index => $row) {
-    $closeDivFlag = 0;
-    if ($username !== $row['username']) {
+foreach ($activeUsersAndPosts as $userPostIndex => $userPost) {
+    if ($userPostIndex === 0) {
+        echo '<div>';
+        echo '<img src="image.jpg" alt="User Image" width=150 height=150>';
+        echo '<h1>' . $userPost['username'] . ' , ' . $userPost['email'] . '</h1>';
+    }
+    elseif ($userPost['username'] !== $activeUsersAndPosts[$userPostIndex - 1]['username']) {
         echo '</div>';
-
-        $username = $row['username'];
-        $email = $row['email'];
 
         echo '<div>';
         echo '<img src="image.jpg" alt="User Image" width=150 height=150>';
-        echo '<h1>' . $username . ' , ' . $email . '</h1>';
+        echo '<h1>' . $userPost['username'] . ' , ' . $userPost['email'] . '</h1>';
     }
 
-    $publishedAt = $row['published_at'];
-    $postTitle = $row['title'];
-    $postBody = $row['body'];
-
-    echo '<h3>'. $publishedAt . ' : ' . $postTitle . '</h3>';
-    echo '<p>' . $postBody . '</p>';
+    echo '<h3>'. $userPost['published_at'] . ' : ' . $userPost['title'] . '</h3>';
+    echo '<p>' . $userPost['body'] . '</p>';
 }
 echo '</div>';
 echo '</div>';
