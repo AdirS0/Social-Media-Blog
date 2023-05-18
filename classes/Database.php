@@ -159,12 +159,12 @@ class Database
      **/
     private function createUsersTable()
     {
-        $createQuery = "CREATE TABLE IF NOT EXISTS `proj_db`.`users` (
-            `id` INT NOT NULL , 
-            `username` VARCHAR(255) NOT NULL , 
-            `email` VARCHAR(255) NOT NULL , 
-            `active` BOOLEAN NOT NULL DEFAULT (RAND() < 0.5) , 
-            PRIMARY KEY (`id`)
+        $createQuery = "CREATE TABLE IF NOT EXISTS proj_db.users (
+            id INT NOT NULL , 
+            username VARCHAR(255) NOT NULL , 
+            email VARCHAR(255) NOT NULL , 
+            active BOOLEAN NOT NULL DEFAULT (RAND() < 0.5) , 
+            PRIMARY KEY (id)
             );";
 
         try {
@@ -183,15 +183,15 @@ class Database
      **/
     private function createPostsTable()
     {
-        $createQuery = "CREATE TABLE IF NOT EXISTS `proj_db`.`posts` (
-            `id` INT NOT NULL , 
-            `user_id` INT NOT NULL , 
-            `title` VARCHAR(255) NOT NULL , 
-            `body` TEXT NOT NULL , 
-            `published_at` DATETIME NOT NULL DEFAULT (CURRENT_TIMESTAMP + INTERVAL FLOOR(RAND()*24) HOUR) , 
-            `active` BOOLEAN NOT NULL DEFAULT (RAND() < 0.5) , 
-            PRIMARY KEY (`id`) , 
-            FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE
+        $createQuery = "CREATE TABLE IF NOT EXISTS proj_db.posts (
+            id INT NOT NULL , 
+            user_id INT NOT NULL , 
+            title VARCHAR(255) NOT NULL , 
+            body TEXT NOT NULL , 
+            published_at DATETIME NOT NULL DEFAULT (CURRENT_TIMESTAMP + INTERVAL FLOOR(RAND()*24) HOUR) , 
+            active BOOLEAN NOT NULL DEFAULT (RAND() < 0.5) , 
+            PRIMARY KEY (id) , 
+            FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE NO ACTION ON UPDATE CASCADE
             );";
 
         try {
@@ -249,11 +249,11 @@ class Database
      **/
     private function createDateHourPostsTable()
     {
-        $createQuery = "CREATE TABLE IF NOT EXISTS `proj_db`.`date_hour_posts` (
-            `date` DATE NOT NULL , 
-            `hour` INT NOT NULL , 
-            `post_count` INT NULL , 
-            PRIMARY KEY (`date`, `hour`)
+        $createQuery = "CREATE TABLE IF NOT EXISTS proj_db.date_hour_posts (
+            date DATE NOT NULL , 
+            hour INT NOT NULL , 
+            post_count INT NULL , 
+            PRIMARY KEY (date, hour)
             )";
 
         try {
