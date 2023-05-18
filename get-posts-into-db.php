@@ -1,6 +1,5 @@
 <?php
 
-//require "classes/Database.php";
 require "database.php";
 
 $ch = curl_init();
