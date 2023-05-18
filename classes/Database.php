@@ -211,7 +211,7 @@ class Database
      **/
     public function selectActiveUsersAndPosts()
     {
-        $sql = "SELECT users.id AS user_id, users.username, users.email, posts.id AS post_id, posts.title, posts.body, posts.published_at
+        $sql = "SELECT users.username, users.email, posts.title, posts.body, posts.published_at
         FROM users
         JOIN posts
         WHERE users.id = posts.user_id
