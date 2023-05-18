@@ -9,7 +9,7 @@ $email = $results[0]['email'];
 echo '<div>';
 echo '<div>';
 echo '<img src="image.jpg" alt="User Image" width=150 height=150>';
-echo '<h1>' . $username . ' ' . $email . '</h1>';
+echo '<h1>' . $username . ' , ' . $email . '</h1>';
 foreach ($results as $index => $row) {
     $closeDivFlag = 0;
     if ($username !== $row['username']) {
@@ -20,7 +20,7 @@ foreach ($results as $index => $row) {
 
         echo '<div>';
         echo '<img src="image.jpg" alt="User Image" width=150 height=150>';
-        echo '<h1>' . $username . ' ' . $email . '</h1>';
+        echo '<h1>' . $username . ' , ' . $email . '</h1>';
     }
 
     $publishedAt = $row['published_at'];
