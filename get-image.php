@@ -10,6 +10,4 @@ curl_close($ch);
 
 file_put_contents("image.jpg", $imageData);
 
-echo "<img src='image.jpg' alt='Image'>\n";
-
 
