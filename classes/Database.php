@@ -276,8 +276,8 @@ class Database
             SELECT DATE(published_at) AS date,
                    HOUR(published_at) AS hour,
                    COUNT(*) as post_count
-            FROM posts
-            GROUP BY date, hour";
+                   FROM posts
+                   GROUP BY date, hour";
         
         try {
             $this->connection->query($sql);
