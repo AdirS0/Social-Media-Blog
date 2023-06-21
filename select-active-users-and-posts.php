@@ -1,6 +1,7 @@
 <?php
 
 require "database.php";
+require "get-image.php";
 
 $activeUsersAndPosts = $db->selectActiveUsersAndPosts();
 
