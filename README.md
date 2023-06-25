@@ -1,6 +1,6 @@
-# inManage-Project
+# Social Media Blog
 
-This project is a social media-like application developed in PHP and MySQL. It allows users to view a list of active users and their posts alongside a user image. The application retrieves data from JSONPlaceholder API, stores it in a MySQL database, and presents it in a user-friendly format.
+This project is a social media-like blog developed in PHP and MySQL. It allows users to view a list of active users and their posts alongside a user image. The application retrieves data from JSONPlaceholder API, stores it in a MySQL database, and presents it in a user-friendly format.
 
 ## Features
 
