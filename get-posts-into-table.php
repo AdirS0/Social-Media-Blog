@@ -24,3 +24,5 @@ if ($e = curl_error($ch)) {
 }
 
 curl_close($ch);
+
+echo "Posts table created with data.";
